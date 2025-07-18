@@ -85,7 +85,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer llx-Kn1tKcboXkeWYOSf9sTVzksanI01daSbEfhhXpG1ar3lAU8r"
+              "value": "Bearer"
             }
           ]
         },
@@ -123,7 +123,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer llx-Kn1tKcboXkeWYOSf9sTVzksanI01daSbEfhhXpG1ar3lAU8r"
+              "value": "Bearer "
             }
           ]
         },
@@ -184,7 +184,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer llx-Kn1tKcboXkeWYOSf9sTVzksanI01daSbEfhhXpG1ar3lAU8r"
+              "value": "Bearer "
             }
           ]
         },
@@ -1077,6 +1077,22 @@
           "name": "Telegram account"
         }
       }
+    },
+    {
+      "parameters": {
+        "content": "## 💡 **¿Cómo se construyó este workflow?**  \n### Mira la explicación completa en el vídeo 👇\n[![Haz clic para ver el tutorial](https://img.youtube.com/vi/rWN_LS6cnXc/hqdefault.jpg)](https://youtu.be/rWN_LS6cnXc)\n",
+        "height": 460,
+        "width": 500,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1260,
+        -1200
+      ],
+      "typeVersion": 1,
+      "id": "f5740914-11c0-4e44-852e-003fe0005ece",
+      "name": "Sticky Note"
     }
   ],
   "pinData": {},
@@ -1586,7 +1602,7 @@
   },
   "active": false,
   "settings": {},
-  "versionId": "b1fdd291-9ea3-4d60-a129-d055f354eb68",
+  "versionId": "8b2d71e9-c576-4506-a3e6-d2ecf16c0e81",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "f25e8b43ff636475529c63a11c44aff28da3f90c9d5fa34e5bb1539179c3ad40"
