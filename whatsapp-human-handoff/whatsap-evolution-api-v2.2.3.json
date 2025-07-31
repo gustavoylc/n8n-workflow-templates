@@ -195,7 +195,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer llx-Q59iq8WY1108e9rPXeTwXPLWJIE7jNV400bVtPGKNZvsovfY"
+              "value": "Bearer "
             }
           ]
         },
@@ -233,7 +233,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer llx-Q59iq8WY1108e9rPXeTwXPLWJIE7jNV400bVtPGKNZvsovfY"
+              "value": "Bearer "
             }
           ]
         },
@@ -294,7 +294,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer llx-Q59iq8WY1108e9rPXeTwXPLWJIE7jNV400bVtPGKNZvsovfY"
+              "value": "Bearer "
             }
           ]
         },
