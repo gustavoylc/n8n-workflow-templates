@@ -1,0 +1,390 @@
+{
+  "name": "backup-git",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        0
+      ],
+      "id": "ea0997c4-8813-4cff-95c9-4d6bb1f463b9",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c32dc889-644e-430e-8c00-6b5da5cc18b6",
+              "name": "username",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "337d3a7d-ad9a-4623-99bb-be1c8fbfa300",
+              "name": "token",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "b3071962-5e1a-4b61-8b94-c0e851bbe26c",
+              "name": "repository",
+              "value": "n8n-backups",
+              "type": "string"
+            },
+            {
+              "id": "bd7909d1-045d-4e27-a77a-6cbc09e84b1d",
+              "name": "email",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        0
+      ],
+      "id": "87e3dc42-6b40-4d89-9d19-1c7d1ab49e71",
+      "name": "Data"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        176
+      ],
+      "id": "794b87b5-3656-4411-a4a3-80fd00c77f29",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "command": "ls .git"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        48,
+        0
+      ],
+      "id": "12919793-a216-472f-9db7-240d699c3d89",
+      "name": "Check For Repository",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "29342b56-0257-4162-a26e-4149b0420028",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        0
+      ],
+      "id": "56b1887f-b824-46b1-99a8-10bf51c4905d",
+      "name": "Error"
+    },
+    {
+      "parameters": {
+        "command": "=export GITHUB_USER={{ $('Data').first().json.username }}\nexport GITHUB_TOKEN={{ $('Data').first().json.token }}\n\ngit init\ngit config user.name \"{{ $('Data').first().json.username }}\"\ngit config user.email \"{{ $('Data').first().json.email }}\"\necho \"# n8n Backups\" > README.md\ngit add README.md\ngit commit -m \"initial commit\"\ngit branch -M main\ngit remote add origin \"https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/{{ $('Data').first().json.repository }}\"\ngit push -u origin main\necho \".gitconfig\" > .gitignore\necho \".n8n/\"     >> .gitignore\necho \".npm/\"     >> .gitignore\ngit add .gitignore"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -128
+      ],
+      "id": "eacbac42-3160-412a-ad96-1d6e6ead8522",
+      "name": "Create New Repository"
+    },
+    {
+      "parameters": {
+        "command": "=npx n8n export:workflow --backup --output project/workflows/"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        752,
+        16
+      ],
+      "id": "bf0e8b47-0d66-4b94-b5e2-7e22481b7b19",
+      "name": "Export Workflows"
+    },
+    {
+      "parameters": {
+        "command": "=npx n8n export:credentials --backup --output project/credentials/"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        944,
+        16
+      ],
+      "id": "2f83e7dd-3d19-46f6-96b8-5f5fa7aeab3f",
+      "name": "Export Credentials"
+    },
+    {
+      "parameters": {
+        "command": "=git -C . add project"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        16
+      ],
+      "id": "f356c823-8848-442c-bd7c-a08377ca52d6",
+      "name": "Git Add"
+    },
+    {
+      "parameters": {
+        "command": "=if git -C project diff --staged --quiet; then\n  echo \"CLEAN\"\nelse\n  echo \"CHANGED\"\nfi\n"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        16
+      ],
+      "id": "982a6282-f2fd-46a6-9d38-b9cc0867e0c7",
+      "name": "Get Diff"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0da6f7c0-0931-4570-b6a5-6446aa4a7868",
+              "leftValue": "={{ $json.stdout }}",
+              "rightValue": "CHANGED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1456,
+        16
+      ],
+      "id": "ba06a1b0-0bde-47c3-b74d-d2a20663cdde",
+      "name": "Changed"
+    },
+    {
+      "parameters": {
+        "command": "=git -C project commit -m \"Auto backup ({{ $now }})\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        0
+      ],
+      "id": "c5ab8031-4ebc-4231-8e69-1b88a8a68cd5",
+      "name": "Git Commit"
+    },
+    {
+      "parameters": {
+        "command": "=git -C project push"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        0
+      ],
+      "id": "15806f5b-dceb-41f8-b0cd-1788f0d65c45",
+      "name": "Git Push"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data": {
+      "main": [
+        [
+          {
+            "node": "Check For Repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check For Repository": {
+      "main": [
+        [
+          {
+            "node": "Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error": {
+      "main": [
+        [
+          {
+            "node": "Create New Repository",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Export Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Repository": {
+      "main": [
+        [
+          {
+            "node": "Export Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export Workflows": {
+      "main": [
+        [
+          {
+            "node": "Export Credentials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export Credentials": {
+      "main": [
+        [
+          {
+            "node": "Git Add",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Git Add": {
+      "main": [
+        [
+          {
+            "node": "Get Diff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Diff": {
+      "main": [
+        [
+          {
+            "node": "Changed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changed": {
+      "main": [
+        [
+          {
+            "node": "Git Commit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Git Commit": {
+      "main": [
+        [
+          {
+            "node": "Git Push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "727a001c-6177-4fa3-bef4-a4677f9bb090",
+  "meta": {
+    "instanceId": "c49af0f965852b1c806490b42a802823a96ffee2bd221fac607d7f88078567f5"
+  },
+  "id": "GFfo6wM9jCStdB92",
+  "tags": []
+}
