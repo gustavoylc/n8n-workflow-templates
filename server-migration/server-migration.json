@@ -1,0 +1,536 @@
+{
+  "name": "server-migration",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        0
+      ],
+      "id": "255585d9-5646-41ba-a5aa-d59e700a8807",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "567cf597-214c-42ca-96c3-1eb5f7263a59",
+              "name": "origin_api_key",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "9000dfe2-1de9-4aaa-8a7e-68821ebce939",
+              "name": "destiny_api_key",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "f4155564-138a-4ac2-be9d-b2c801cca74d",
+              "name": "origin_base_url",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "a44bddb1-0bae-42be-bba5-b782b8585b66",
+              "name": "destiny_base_url",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "e1bd508e-0d0c-4529-bd75-10d8281ffd8a",
+      "name": "Data"
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        -16
+      ],
+      "id": "704e46b9-d57f-4f07-959d-66a9fb25ea77",
+      "name": "Get many workflows"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Data').item.json.origin_base_url }}/api/v1/tags",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Data').item.json.origin_api_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "558edcb8-e2a3-4d77-a7c1-e47910c385c4",
+      "name": "Get Origin Tags"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "7cf99830-c4da-4a51-93ba-9397489f2637",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Data').item.json.destiny_base_url }}/api/v1/tags",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Data').item.json.destiny_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Loop Over Items').item.json.name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        704,
+        16
+      ],
+      "id": "99d4bcbf-ce82-4537-9d30-1c8e7991658e",
+      "name": "Insert Tags Into Destiny",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4260b68a-e8a4-405c-85ec-7fa2aa3fee7c",
+              "leftValue": "={{ $json.error.status }}",
+              "rightValue": 409,
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        16
+      ],
+      "id": "ce796091-f4f6-413b-b6cb-e345147ccc65",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        32
+      ],
+      "id": "7aeac83a-9544-4706-af8b-e853be55b119",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Data').item.json.destiny_base_url }}/api/v1/tags",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Data').item.json.destiny_api_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1376,
+        -16
+      ],
+      "id": "17bcd438-c610-43d8-9a52-12dd6713c5fa",
+      "name": "Get Destiny Tags",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        160,
+        0
+      ],
+      "id": "fc8b838f-9247-4a1d-bbb3-5831883172ad",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c5a96412-a52e-44a3-9549-6024271f18ef",
+              "leftValue": "={{ $json.isArchived }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        -16
+      ],
+      "id": "ca20a3f6-5d72-4078-b965-976724ebcaa4",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "const dest = $(\"Get Destiny Tags\").all();\nconst list = dest.flatMap(i =>\n  Array.isArray(i.json?.data) ? i.json.data :\n  Array.isArray(i.json) ? i.json : []\n);\nconst nameToId = new Map(list.map(t => [t.name, t.id]));\n\nreturn $input.all().map(({ json: wf }, idx) => {\n  const tagIds = (wf.tags || [])\n    .map(t => nameToId.get(t.name))\n    .filter(Boolean);\n\n  const payload = {\n    name: `${wf.name}-copy`,\n    active: false,\n    nodes: wf.nodes ?? [],\n    connections: wf.connections ?? {},\n    settings: wf.settings ?? {},\n  };\n\n  return { json: { payload, tagIds }, pairedItem: idx };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        -16
+      ],
+      "id": "490f10ff-02bf-4a8f-8ab8-9329debd32f6",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        -16
+      ],
+      "id": "2164685f-43a2-4826-9c09-70942dba4203",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Data').item.json.destiny_base_url }}/api/v1/workflows/{{ $('Create Workflows').item.json.id }}/tags",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Data').item.json.destiny_api_key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ($('Loop Over Items1').item.json.tagIds || []).map(id => ({ id })) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2720,
+        0
+      ],
+      "id": "9cb556db-c5eb-4001-a866-2e790523a299",
+      "name": "Update Tags"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "workflowObject": "={{ JSON.stringify($('Loop Over Items1').item.json.payload) }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        0
+      ],
+      "id": "20ecc1fe-0954-4682-a086-ab52b53322ba",
+      "name": "Create Workflows",
+      "credentials": {
+        "n8nApi": {
+          "id": "Wxcm36nGYKKDMrIX",
+          "name": "n8n account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data": {
+      "main": [
+        [
+          {
+            "node": "Get Origin Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many workflows": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Origin Tags": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Get Destiny Tags",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert Tags Into Destiny",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Tags Into Destiny": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Destiny Tags": {
+      "main": [
+        [
+          {
+            "node": "Get many workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Create Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Tags": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Workflows": {
+      "main": [
+        [
+          {
+            "node": "Update Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5ec8c755-5634-4e73-991e-8d78c66a0a18",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f25e8b43ff636475529c63a11c44aff28da3f90c9d5fa34e5bb1539179c3ad40"
+  },
+  "id": "QXRo1ePG7XpiMkDK",
+  "tags": [
+    {
+      "createdAt": "2025-09-02T17:00:51.182Z",
+      "updatedAt": "2025-09-02T17:00:51.182Z",
+      "id": "a0EoVEgPlpCZMVxh",
+      "name": "youtube"
+    }
+  ]
+}
